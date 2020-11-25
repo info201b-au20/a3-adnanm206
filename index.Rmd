@@ -1,0 +1,101 @@
+---
+title: "Incarceration"
+author: "Adnan"
+date: "11/20/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(dplyr)
+library(ggplot2)
+library(maps)
+library(mapproj)
+library(reshape2)
+library(lintr)
+source("analysis.R")
+read.csv("incarceration_trends.csv")
+```
+
+
+## Introduction
+This report was created using the incarceration data set found online. This 
+data set shows the incarceration rate over time between 1968 and 2018. It also
+shows us the population of each race as well as the jail population in each 
+state as well as county. Down below I have created three different charts to 
+show visualizations of black jail population, black vs white population in 
+each county of Texas, and lastly a map that shows the percentage of latin
+people in each county of Texas.
+
+
+## Summary Information
+In my data I tried to focus on race and population of different counties in 
+Texas. Therefore I first looked for the state with the highest black jail
+population and after calculating it the state with the highest black jail
+population was California (```summary_info$state_highest_black_jail_pop```). 
+Then I went on to see the county with the highest jail population in the state
+of Texas which was Harris County (```summary_info$county_highest_jail_pop_in_TX```).
+You can also see in my variable comparison chart that Harris County had the
+highest black population in Texas which makes sense that they also have the 
+highest jail population. Furthermore I had also calculated the total population
+in Texas which came out to be 4698619 (```summary_info$total_pop_in_TX ```).
+Lastly I also calculated the state and county with the highest fips  which came
+out to be Weston County (```summary_info$county_highest_fips  ```) and Wyoming 
+(```summary_info$state_highest_fips ```). This makes sense because Weston County
+is a county in Wyoming.
+
+```{r echo=FALSE}
+summary_info
+```
+
+## Trends Chart
+This chart below shows the top 10 unique counties in Texas every 5 years 
+between 1990 and 2010. This shows us the black jail population over time 
+throughout the years and as we can see from the chart Harris County and
+Dallas County had the highest black jail population between 1990 and 2010. You
+can see there is a huge difference between those two and the rest of the
+counties.
+
+```{r black_jail_pop, echo = FALSE}
+ggplot(df, aes(x = Year, y = black_jail_pop)) + 
+  geom_line(aes(color = County), size = 1) +
+  theme_minimal()+
+  labs(x = "year", y = "black Jail Population",
+       title = "Black Jail Population in Texas between 1990 and 2010 ")
+```
+
+
+## Variable comparison Chart
+The comparison chart below shows the black and white population of 10 counties
+in Texas to shows the difference between the two races. As you can see the 
+white population in each of these counties is significantly bigger than the
+black population. I included this chart to show maybe since the black 
+population is very low then the black jail population might be low as well.
+
+```{r pop_comparison, echo = FALSE}
+ggplot(dfm,aes(x = population, y = Counties)) + 
+  geom_bar(aes(fill = Race),stat = "identity",position = "dodge")+
+  labs(x = "Population", y = "Counties",
+     title = "Black Vs white population from 10 counties in Texas")
+```
+
+
+## Map
+The map below shows us the percentage of natives in each county of Texas. The 
+places with lighter blue shows that the percentage of natives in those counties
+are higher compared to the places that are more darker. The darker places show
+the percentage of native population is very low. Throughout the entire map it
+shows the percentage of native population spread apart in the state of Texas.
+
+```{r perc_native_15to64, echo = FALSE}
+# Percentage of native population in each county of Texas
+ ggplot(map_data) +
+  geom_polygon(
+    mapping = aes(x = long, y = lat, group = group, fill = perc_native_15to64),
+    color = "grey", size = 1.2
+  ) +
+  coord_map() +
+  scale_fill_continuous(limits = c(0, max(map_data$perc_native_15to64)), na.value = "white") +
+  blank_theme +
+  ggtitle("Populations per county in TX")
+```
